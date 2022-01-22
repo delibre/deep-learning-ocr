@@ -1,0 +1,31 @@
+function cropped = CropImage(im)
+    
+
+    s = size(im);
+
+    for top = 1:s(1)
+        if sum(im(top, :)) ~= 0
+            break;
+        end
+    end
+
+    for bottom = s(3):-1:1
+        if sum(im(bottom, :)) ~= 0
+            break;
+        end
+    end
+
+    for left = 1:s(2)
+        if sum(im(:, left)) ~= 0
+            break;
+        end
+    end
+
+    for right = s(4):-1:1
+        if sum(im(:, right), 'all') ~= 0
+            break;
+        end
+    end
+
+
+end

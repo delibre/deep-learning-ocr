@@ -1,0 +1,104 @@
+clear; close all; clc;
+im = imread("learning/Obraz-0002.png");
+% FindLetterImages(im);
+
+% wstępna obróbka obrazu
+    im = double(im);
+    im = 1 - (im-min(im, [], 'all')) / (max(im, [], 'all') - min(im, [], 'all'));
+    im = rgb2gray(im);
+    im = imfilter(im, [-1, -1, -1; -1, 9, -1; -1, -1, -1]/4);
+    im(im<0)=0;
+    im(im>1)=1;
+
+  % binaryzacja
+    binary = imbinarize(im, 'adaptive', 'Sensitivity', 0.5);
+    im = imbinarize(im .* binary, 0.1);
+    im = bwmorph(im, 'clean'); 
+    clear binary
+
+  % usuwanie marginesów
+    mask = ones(size(im));
+    mask(1, :) = 0;
+    mask(end, :) = 0;
+    mask(:, 1) = 0;
+    mask(:, end) = 0;
+    im = im & imerode(mask, ones(15));
+    clear mask;
+
+  % wykrywanie linii
+    mask = zeros(10);
+    for i=1:15
+        mask(7, i) = 1;
+    end    
+    lineMask = imdilate(im, mask);
+    lineMask = imclose(lineMask, ones(5));
+    lineMask = imclose(lineMask, mask);
+    l = bwlabel(lineMask);
+    count = max(l, [], 'all');
+    lineCount = 1;
+    linesTemp = cell([count, 1]);
+    area = sum(lineMask, 'all');
+
+    for i=1:count
+        if sum(l==i, 'all') > area/64
+            linesTemp{lineCount} = (l==i) & im;
+            lineCount = lineCount + 1;
+        end
+    end
+    lineCount = lineCount-1;
+    lines = cell([lineCount, 1]);
+    for i=1:lineCount
+        lines{i} = linesTemp{i};
+    end
+    clear linesTemp linesMask;
+
+ 
+% wykrywanie znaków
+    i = 3;
+    mask = mask';
+    letterMask = imerode(lines{i}, [0, 1, 0; 0, 1, 0; 0, 1, 0]);    
+    letterMask = imdilate(letterMask, mask);    
+    letterMask = imdilate(letterMask, ones(1));   
+    letterMask = imclose(letterMask, ones(3));    
+ 
+    area = sum(letterMask, 'all');
+    l = bwlabel(letterMask);
+    count = max(l, [], 'all');
+    letterCount = 1;
+
+    tempLettersInLine = cell([letterCount, 1]);
+    for j=1:count
+        if sum(l==i, 'all') > area/1000
+            tempLettersInLine{letterCount} = regionprops((l==j) & lines{i}, 'Image').Image;
+            letterCount = letterCount + 1;
+        end
+    end
+    letterCount = letterCount -1;
+    lettersInLine = cell([letterCount, 1]);
+    for j=1:letterCount
+        lettersInLine{i} = tempLettersInLine{i};
+    end
+    clear tempLettersInLine;
+
+
+
+% 
+%     l = bwlabel(im);
+%     count = 10%max(l, [], 'all');
+%     
+%     prop = cell(count, 1);
+%     maxArea = 0;
+%     for i = 1:count
+%         prop{i} = regionprops(l==i, 'Area', 'Centroid', 'Image');
+%         maxArea = max([prop{i}.Area, maxArea]);
+%         disp(i/count);
+%     end
+%     letters = zeros([count, 16, 16]);
+
+    %sorting
+    
+    
+
+    % end
+    
+  %  imshow(im);
