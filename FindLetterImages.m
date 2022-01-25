@@ -57,11 +57,11 @@ function letters = FindLetterImages(im)
     
     letters = cell([lineCount, 1]);
      
-%     mask = mask';
+    mask = mask';
     
     % wykrywanie znaków
     for i=1:lineCount
-        %disp(string(i) + '/' + string(lineCount));
+        disp(string(i) + '/' + string(lineCount)); %%%%%%%%%%%%%%%%%%%%%%
         letterMask = originalLines{i} .* lines{i};
 
          lineSize = size(letterMask);
@@ -81,8 +81,8 @@ function letters = FindLetterImages(im)
             end
          end
 
-        %imwrite(lines{i}, 'testspace/' + string(i) + '.png'); %%%%%%%%%%%%%
-        %imwrite(letterMask, 'testspace/mask' + string(i) + '.png'); %%%%%%%%%%%%%
+        imwrite(lines{i}, 'testspace/' + string(i) + '.png'); %%%%%%%%%%%%%
+        imwrite(letterMask, 'testspace/mask' + string(i) + '.png'); %%%%%%%%%%%%%
     
         area = sum(lines{i}, 'all');
         l = bwlabel(letterMask);
@@ -92,7 +92,7 @@ function letters = FindLetterImages(im)
         tempLettersInLine = cell([letterCount, 1]);
         for j=1:count
             if sum(l==j, 'all') > area/200
-                cropped = CropImages(imdilate(l==j, ones(5)) & lines{i}, originalLines{i}, 5);
+                cropped = CropImages(imdilate(imdilate(l==j, ones(5)), mask) & lines{i}, originalLines{i}, 5);
                 tempLettersInLine{letterCount} = imresize(cropped{2}, [32, 16]);
                 tempLettersInLine{letterCount} = tempLettersInLine{letterCount} / max(tempLettersInLine{letterCount}, [], 'all');
                 letterCount = letterCount + 1;
@@ -100,10 +100,10 @@ function letters = FindLetterImages(im)
         end
         letterCount = letterCount -1;
         lettersInLine = cell([letterCount, 1]);
-        disp('Found: ' + string(letterCount))
+        disp('Found: ' + string(letterCount)) %%%%%%%%%%%%%%%%%
         for j=1:letterCount
             lettersInLine{j} = tempLettersInLine{j};
-            %imwrite(lettersInLine{j}, 'testspace/letters/' + string(i) + "x" + string(j) + '.png'); %%%%%%%%%%%%%
+            imwrite(lettersInLine{j}, 'testspace/letters/' + string(i) + "x" + string(j) + '.png'); %%%%%%%%%%%%%
         end
         clear tempLettersInLine;
         letters{i} = lettersInLine;
