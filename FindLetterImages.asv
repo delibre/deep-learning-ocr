@@ -8,7 +8,7 @@ function letters = FindLetterImages(im)
     im(im<0)=0;
     im(im>1)=1;
     originalIm = im;
-    
+
     % binaryzacja
     binary = imbinarize(im, 'adaptive', 'Sensitivity', 0.5);
     im = imbinarize(im .* binary, 0.1);
@@ -25,13 +25,14 @@ function letters = FindLetterImages(im)
     clear mask;
     
     % wykrywanie linii
-    mask = zeros(10);
+    mask = zeros(15);
     for i=1:15
         mask(7, i) = 1;
     end
     lineMask = imdilate(im, mask);
-    lineMask = imdilate(lineMask, ones(5));
+    lineMask = imdilate(lineMask, ones(3));
     %lineMask = imclose(lineMask, ones(5));
+    lineMask = imdilate(lineMask, mask);
     lineMask = imclose(lineMask, mask);
     l = bwlabel(lineMask')';
     count = max(l, [], 'all');
@@ -49,11 +50,13 @@ function letters = FindLetterImages(im)
     lines = cell([lineCount, 1]);
     originalLines = cell([lineCount, 1]);
     for i=1:lineCount
-        cropped = CropImages(linesTemp{i}, originalIm, 50);
+        cropped = CropImages(linesTemp{i}, originalIm, 10);
         s = size(cropped{1});
-        s(2) = s(2)/s(1)*200
-        lines{i} = cropped{1};
-        originalLines{i} = cropped{2};
+        destHeight = 300;
+        s(2) = floor(s(2)/s(1)*destHeight);
+        s(1) = destHeight;
+        lines{i} = imresize(cropped{1}, s);
+        originalLines{i} = imresize(cropped{2}, s);
     end
     clear linesTemp linesMask;
     
@@ -65,6 +68,7 @@ function letters = FindLetterImages(im)
     for i=1:lineCount
         disp(string(i) + '/' + string(lineCount)); %%%%%%%%%%%%%%%%%%%%%%
         letterMask = originalLines{i} .* lines{i};
+        wordMask = bwlabel(imdilate(letterMask, [mask', mask', mask', mask', mask']));
 
          lineSize = size(letterMask);
          for k=1:lineSize(2)
@@ -95,6 +99,8 @@ function letters = FindLetterImages(im)
         for j=1:count
             if sum(l==j, 'all') > area/200
                 cropped = CropImages(imdilate(imdilate(l==j, ones(5)), mask) & lines{i}, originalLines{i}, 5);
+                currentWordIndex = max(wordMask &(l==j), [], 'all');
+                disp(currentWordIndex);
                 tempLettersInLine{letterCount} = imresize(cropped{2}, [32, 16]);
                 tempLettersInLine{letterCount} = tempLettersInLine{letterCount} / max(tempLettersInLine{letterCount}, [], 'all');
                 letterCount = letterCount + 1;

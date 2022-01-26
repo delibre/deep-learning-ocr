@@ -30,8 +30,9 @@ function letters = FindLetterImages(im)
         mask(7, i) = 1;
     end
     lineMask = imdilate(im, mask);
-    lineMask = imdilate(lineMask, ones(5));
+    lineMask = imdilate(lineMask, ones(3));
     %lineMask = imclose(lineMask, ones(5));
+    lineMask = imdilate(lineMask, mask);
     lineMask = imclose(lineMask, mask);
     l = bwlabel(lineMask')';
     count = max(l, [], 'all');
@@ -65,8 +66,10 @@ function letters = FindLetterImages(im)
     
     % wykrywanie znaków
     for i=1:lineCount
-        disp(string(i) + '/' + string(lineCount)); %%%%%%%%%%%%%%%%%%%%%%
+        %disp(string(i) + '/' + string(lineCount)); %%%%%%%%%%%%%%%%%%%%%%
         letterMask = originalLines{i} .* lines{i};
+        wordMask = bwlabel(imdilate(letterMask, [mask', mask', mask', mask', mask']));
+        wordIndex = 2;
 
          lineSize = size(letterMask);
          for k=1:lineSize(2)
@@ -85,9 +88,9 @@ function letters = FindLetterImages(im)
             end
          end
 
-        imwrite(lines{i}, 'testspace/' + string(i) + '.png'); %%%%%%%%%%%%%
-        imwrite(letterMask, 'testspace/mask' + string(i) + '.png'); %%%%%%%%%%%%%
-    
+%         imwrite(lines{i}, 'testspace/' + string(i) + '.png'); %%%%%%%%%%%%%
+%         imwrite(letterMask, 'testspace/mask' + string(i) + '.png'); %%%%%%%%%%%%%
+     
         area = sum(lines{i}, 'all');
         l = bwlabel(letterMask);
         count = max(l, [], 'all');
@@ -97,6 +100,12 @@ function letters = FindLetterImages(im)
         for j=1:count
             if sum(l==j, 'all') > area/200
                 cropped = CropImages(imdilate(imdilate(l==j, ones(5)), mask) & lines{i}, originalLines{i}, 5);
+                currentWordIndex = round(mean(wordMask(l==j), 'all'));
+                if currentWordIndex ~= wordIndex
+                    wordIndex = currentWordIndex;
+                    tempLettersInLine{letterCount} = zeros([32, 16]);                 
+                    letterCount = letterCount + 1;
+                end
                 tempLettersInLine{letterCount} = imresize(cropped{2}, [32, 16]);
                 tempLettersInLine{letterCount} = tempLettersInLine{letterCount} / max(tempLettersInLine{letterCount}, [], 'all');
                 letterCount = letterCount + 1;
@@ -104,10 +113,10 @@ function letters = FindLetterImages(im)
         end
         letterCount = letterCount -1;
         lettersInLine = cell([letterCount, 1]);
-        disp('Found: ' + string(letterCount)) %%%%%%%%%%%%%%%%%
+        %disp('Found: ' + string(letterCount)) %%%%%%%%%%%%%%%%%
         for j=1:letterCount
             lettersInLine{j} = tempLettersInLine{j};
-            imwrite(lettersInLine{j}, 'testspace/letters/' + string(i) + "x" + string(j) + '.png'); %%%%%%%%%%%%%
+           % imwrite(lettersInLine{j}, 'testspace/letters/' + string(i) + "x" + string(j) + '.png'); %%%%%%%%%%%%%
         end
         clear tempLettersInLine;
         letters{i} = lettersInLine;
