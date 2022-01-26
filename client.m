@@ -1,9 +1,9 @@
-function client(data)
+function client(letters)
 
     import matlab.net.http.*
     import matlab.net.http.field.*
     
-    %data = jsondecode(fileread('test.json'));
+    data = jsondecode(mps.json.encode(letters)); 
     body = matlab.net.http.MessageBody(data);
     body.show
     
