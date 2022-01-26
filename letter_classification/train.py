@@ -1,3 +1,4 @@
+from argparse import ArgumentParser
 import glob
 import sys
 
@@ -13,29 +14,42 @@ import numpy as np
 
 
 if __name__ == '__main__':
-   if len(sys.argv) != 2:
-      raise ValueError('you must pass a path for the model to be saved')
+   parser = ArgumentParser()
+   parser.add_argument('output_model', default='model.h5', type=str, help='path to save model')
+   parser.add_argument('--from_fonts', action='store_true', help='train from fonts csv files')
+   parser.add_argument('--from_custom', action='store_true', help='train from custom dataset')
+   # parser.add_argument('--from_pretrained', default='', type=str, help='path to the pretrained model')
 
-   dfs = list()
-   for filepath in glob.glob('fonts/*.csv'):
-      print(filepath)
-      dfs.append(pd.read_csv(filepath))
+   args = parser.parse_args()
 
-   print('concatenating')
-   fonts = pd.concat(dfs, axis=0)
-   del dfs
-   print('concatenated', fonts.shape[0])
+   if args.from_fonts:
+      dfs = list()
+      for filepath in glob.glob('fonts/*.csv'):
+         print(filepath)
+         dfs.append(pd.read_csv(filepath))
 
-   print('filtering')
-   fonts_ascii = fonts.loc[fonts['m_label'] < 128]
-   del fonts
-   X = fonts_ascii.iloc[:, 12:]
-   print('filtered', X.shape[0])
+      print('concatenating')
+      fonts = pd.concat(dfs, axis=0)
+      del dfs
+      print('concatenated', fonts.shape[0])
 
-   print('processing')
-   X = np.array(X, dtype=np.uint8)
-   y = np.array(fonts_ascii['m_label'], dtype=np.uint8)
-   del fonts_ascii
+      print('filtering')
+      fonts_ascii = fonts.loc[fonts['m_label'] < 128]
+      del fonts
+      X = fonts_ascii.iloc[:, 12:]
+      print('filtered', X.shape[0])
+
+      print('processing')
+      X = np.array(X, dtype=np.uint8)
+      y = np.array(fonts_ascii['m_label'], dtype=np.uint8)
+      del fonts_ascii
+
+   elif args.from_custom:
+      X = np.load('X.npy')
+      y = np.load('y.npy')
+
+   else:
+      raise ValueError('select training either from fonts or from a custom dataset')
 
    x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
 
@@ -77,7 +91,7 @@ if __name__ == '__main__':
                metrics=['accuracy'])
 
    try:
-      model.fit(x_train, y_train, epochs=30, batch_size=500)
+      model.fit(x_train, y_train, epochs=10, batch_size=500)
    except KeyboardInterrupt:
       print('interrupted')
    finally:
