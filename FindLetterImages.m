@@ -8,7 +8,7 @@ function letters = FindLetterImages(im)
     im(im<0)=0;
     im(im>1)=1;
     originalIm = im;
-    
+
     % binaryzacja
     binary = imbinarize(im, 'adaptive', 'Sensitivity', 0.5);
     im = imbinarize(im .* binary, 0.1);
@@ -25,7 +25,7 @@ function letters = FindLetterImages(im)
     clear mask;
     
     % wykrywanie linii
-    mask = zeros(10);
+    mask = zeros(15);
     for i=1:15
         mask(7, i) = 1;
     end
@@ -49,9 +49,13 @@ function letters = FindLetterImages(im)
     lines = cell([lineCount, 1]);
     originalLines = cell([lineCount, 1]);
     for i=1:lineCount
-        cropped = CropImages(linesTemp{i}, originalIm, 50);
-        lines{i} = cropped{1};
-        originalLines{i} = cropped{2};
+        cropped = CropImages(linesTemp{i}, originalIm, 10);
+        s = size(cropped{1});
+        destHeight = 300;
+        s(2) = floor(s(2)/s(1)*destHeight);
+        s(1) = destHeight;
+        lines{i} = imresize(cropped{1}, s);
+        originalLines{i} = imresize(cropped{2}, s);
     end
     clear linesTemp linesMask;
     
@@ -61,7 +65,7 @@ function letters = FindLetterImages(im)
     
     % wykrywanie znaków
     for i=1:lineCount
-        % disp(string(i) + '/' + string(lineCount)); %%%%%%%%%%%%%%%%%%%%%%
+        disp(string(i) + '/' + string(lineCount)); %%%%%%%%%%%%%%%%%%%%%%
         letterMask = originalLines{i} .* lines{i};
 
          lineSize = size(letterMask);
@@ -81,8 +85,8 @@ function letters = FindLetterImages(im)
             end
          end
 
-        % imwrite(lines{i}, 'testspace/' + string(i) + '.png'); %%%%%%%%%%%%%
-        % imwrite(letterMask, 'testspace/mask' + string(i) + '.png'); %%%%%%%%%%%%%
+        imwrite(lines{i}, 'testspace/' + string(i) + '.png'); %%%%%%%%%%%%%
+        imwrite(letterMask, 'testspace/mask' + string(i) + '.png'); %%%%%%%%%%%%%
     
         area = sum(lines{i}, 'all');
         l = bwlabel(letterMask);
@@ -100,10 +104,10 @@ function letters = FindLetterImages(im)
         end
         letterCount = letterCount -1;
         lettersInLine = cell([letterCount, 1]);
-        % disp('Found: ' + string(letterCount)) %%%%%%%%%%%%%%%%%
+        disp('Found: ' + string(letterCount)) %%%%%%%%%%%%%%%%%
         for j=1:letterCount
             lettersInLine{j} = tempLettersInLine{j};
-            % imwrite(lettersInLine{j}, 'testspace/letters/' + string(i) + "x" + string(j) + '.png'); %%%%%%%%%%%%%
+            imwrite(lettersInLine{j}, 'testspace/letters/' + string(i) + "x" + string(j) + '.png'); %%%%%%%%%%%%%
         end
         clear tempLettersInLine;
         letters{i} = lettersInLine;
