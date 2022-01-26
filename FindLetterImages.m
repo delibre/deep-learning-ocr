@@ -61,7 +61,7 @@ function letters = FindLetterImages(im)
     
     % wykrywanie znaków
     for i=1:lineCount
-        disp(string(i) + '/' + string(lineCount)); %%%%%%%%%%%%%%%%%%%%%%
+        % disp(string(i) + '/' + string(lineCount)); %%%%%%%%%%%%%%%%%%%%%%
         letterMask = originalLines{i} .* lines{i};
 
          lineSize = size(letterMask);
@@ -81,8 +81,8 @@ function letters = FindLetterImages(im)
             end
          end
 
-        imwrite(lines{i}, 'testspace/' + string(i) + '.png'); %%%%%%%%%%%%%
-        imwrite(letterMask, 'testspace/mask' + string(i) + '.png'); %%%%%%%%%%%%%
+        % imwrite(lines{i}, 'testspace/' + string(i) + '.png'); %%%%%%%%%%%%%
+        % imwrite(letterMask, 'testspace/mask' + string(i) + '.png'); %%%%%%%%%%%%%
     
         area = sum(lines{i}, 'all');
         l = bwlabel(letterMask);
@@ -100,10 +100,10 @@ function letters = FindLetterImages(im)
         end
         letterCount = letterCount -1;
         lettersInLine = cell([letterCount, 1]);
-        disp('Found: ' + string(letterCount)) %%%%%%%%%%%%%%%%%
+        % disp('Found: ' + string(letterCount)) %%%%%%%%%%%%%%%%%
         for j=1:letterCount
             lettersInLine{j} = tempLettersInLine{j};
-            imwrite(lettersInLine{j}, 'testspace/letters/' + string(i) + "x" + string(j) + '.png'); %%%%%%%%%%%%%
+            % imwrite(lettersInLine{j}, 'testspace/letters/' + string(i) + "x" + string(j) + '.png'); %%%%%%%%%%%%%
         end
         clear tempLettersInLine;
         letters{i} = lettersInLine;
