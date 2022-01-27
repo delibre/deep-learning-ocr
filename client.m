@@ -3,7 +3,7 @@ function client(letters)
     import matlab.net.http.*
     import matlab.net.http.field.*
     
-    data = jsondecode(mps.json.encode(letters));
+    data = jsondecode(jsonencode(letters));
 %     letter2Json(letters, 'test.json');
 %     data = jsondecode(fileread('test.json'));
     
