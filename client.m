@@ -1,4 +1,4 @@
-function client(letters)
+function text=client(letters)
 
     import matlab.net.http.*
     import matlab.net.http.field.*
@@ -23,7 +23,10 @@ function client(letters)
     response = request.send('http://localhost:2640/predict');
     
     show(response);
-    
-    fprintf('%s',response.Body.Data.text);
+
+    text = response.Body.Data.text;
+
+
+    fprintf('%s',text);
 
 end
