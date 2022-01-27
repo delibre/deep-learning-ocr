@@ -6,6 +6,4 @@ im = imread(fileName);
 
 letters = FindLetterImages(im);
 
-% !sleep 3s
-
 client(letters)

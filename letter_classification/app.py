@@ -20,15 +20,19 @@ def index():
 def predict():
     data = request.get_json()
 
-    print(data)
+    #print(data)
 
     chars = []
-    for line in data['mwdata']:
-        for char in line['mwdata']:
+    for line in data:
+        for char in line:
             image = np.clip(np.array(char, dtype=np.float64), 0, 1) * 255
             image = image.astype(np.uint8)
+            if np.sum(image) <= 0.001:
+                chars.append(' ')
+                continue                
+            
             code = model.predict(image)
-
+            
             chars.append(chr(code))
         chars.append('\n')
 

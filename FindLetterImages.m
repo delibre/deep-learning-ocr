@@ -103,8 +103,8 @@ function letters = FindLetterImages(im)
                 currentWordIndex = round(mean(wordMask(l==j), 'all'));
                 if currentWordIndex ~= wordIndex
                     wordIndex = currentWordIndex;
-                    tempLettersInLine{letterCount} = zeros([32, 16]);                 
-                    letterCount = letterCount + 1;
+                     tempLettersInLine{letterCount} = zeros([32, 16]);                 
+                     letterCount = letterCount + 1;
                 end
                 tempLettersInLine{letterCount} = imresize(cropped{2}, [32, 16]);
                 tempLettersInLine{letterCount} = tempLettersInLine{letterCount} / max(tempLettersInLine{letterCount}, [], 'all');
