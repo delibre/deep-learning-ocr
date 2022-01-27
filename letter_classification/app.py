@@ -22,14 +22,18 @@ def predict():
 
     print(data)
 
-    image = data['mwdata'][0]['mwdata'][0]
-    image = np.clip(np.array(image, dtype=np.float64), 0, 1) * 255
-    image = image.astype(np.uint8)
+    chars = []
+    for line in data['mwdata']:
+        for char in line['mwdata']:
+            image = np.clip(np.array(char, dtype=np.float64), 0, 1) * 255
+            image = image.astype(np.uint8)
+            code = model.predict(image)
 
-    code = model.predict(image)
+            chars.append(chr(code))
+        chars.append('\n')
 
     return jsonify({
-        'code': int(code)
+        'text': ''.join(chars)
     }), 200
 
 
