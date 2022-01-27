@@ -22,7 +22,16 @@ def load(filepath: str):
 
     name, _ = filepath.name.split('.', 1)
     code, _ = name.split('x')
-    code = int(code) + ord('a') - 1
+    code = int(code)
+
+    if code <= 26:
+        code = int(code) + ord('A') - 1
+    elif code >= 79:
+        code = int(code) + ord('A') - 79
+    elif code >= 27 and code <= 52:
+        code = int(code) + ord('a') - 27
+    elif code >= 53 and code <= 78:
+        code = int(code) + ord('a') - 53
 
     return Image(cv2.imread(str(filepath)), code)
 
