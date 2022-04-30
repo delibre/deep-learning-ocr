@@ -1,4 +1,4 @@
-# AO_Project
+# Image Analysis Project
 
 The topic of the project was to create a program that could read text from image, our own OCR.
 
